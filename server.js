@@ -2,7 +2,8 @@
 //  OpenShift sample Node application
 var express = require('express');
 var fs      = require('fs');
-
+var getData = require('./routes/getData');
+var readData = require('./routes/readData');
 
 /**
  *  Define the sample application.
@@ -123,6 +124,9 @@ var SampleApp = function() {
         for (var r in self.routes) {
             self.app.get(r, self.routes[r]);
         }
+
+        self.app.use('/',getData);
+        self.app.use('/',readData);
     };
 
 
