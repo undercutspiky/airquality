@@ -4,6 +4,7 @@ var express = require('express');
 var fs      = require('fs');
 var getData = require('./routes/getData');
 var readData = require('./routes/readData');
+var testData = require('./routes/testData');
 
 /**
  *  Define the sample application.
@@ -106,9 +107,6 @@ var SampleApp = function() {
             res.send(self.cache_get('index.html') );
         };
 
-        self.routes['/test'] = function(req, res){
-            res.send("some random test :P");
-        };
     };
 
 
@@ -127,6 +125,7 @@ var SampleApp = function() {
 
         self.app.use('/',getData);
         self.app.use('/',readData);
+        self.app.use('/',testData);
     };
 
 
