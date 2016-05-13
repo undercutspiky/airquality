@@ -107,6 +107,15 @@ var SampleApp = function() {
             res.send(self.cache_get('index.html') );
         };
 
+        self.routes['/graphs'] = function(req, res) {
+            res.setHeader('Content-Type', 'text/html');
+            res.sendfile('graphs.html', {root: __dirname })
+        };
+
+        self.routes['/chart.min.js'] = function(req, res) {
+            res.sendfile('chart.min.js', {root: __dirname })
+        };
+
     };
 
 

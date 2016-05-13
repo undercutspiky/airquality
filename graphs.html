@@ -2,41 +2,128 @@
     <head>
         <title>Chart.js demo</title>
         <!-- import plugin script -->
-        <script src='chart.min.js'></script>
+        <script src='./chart.min.js'></script>
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <style>
+        .panel-heading{
+            background-color: black;
+            border-color: black;
+            color: white;
+        }
+        .panel{
+            border: 0.5px solid rgba(0,0,0,0.3);
+        }
+        .panel-body{
+            border-color: black;
+        }
+        .close{
+            color: white;
+            opacity: 0.8;
+        }
+        .close:hover{
+            color: white;
+            opacity: 1;
+        }
+        </style>
     </head>
-    <body>
-        <!-- line chart canvas element -->
-        <canvas id="buyers" width="600" height="400"></canvas>
-        <!-- pie chart canvas element -->
-        <canvas id="countries" width="600" height="400"></canvas>
-        <!-- bar chart canvas element -->
-        <canvas id="income" width="600" height="400"></canvas>
+    <body style="background: #f6f8f8">
+        <div class="container">
+        <div id="common-nav"></div>
+        <script type="text/javascript">
+            $("#common-nav").load("/ .navbar", function(){
+                $("#common-nav .nav li").each(function(i){
+                    if(i==1)
+                        $(this).addClass("active");
+                    else
+                        $(this).removeClass("active")
+                });
+            });
+        </script>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <b>Line Graph</b>
+                        <span class="close" aria-label="Minimize" onclick="$(this).closest('.panel').children('.panel-body').fadeToggle()">&times;</span>
+                    </div>
+                    <div class="panel-body">
+                        <!-- line chart canvas element -->
+                        <canvas id="buyers" height="400" width="525"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <b>Pie Chart</b>
+                        <span class="close" aria-label="Minimize" onclick="$(this).closest('.panel').children('.panel-body').fadeToggle()">&times;</span>
+                    </div>
+                    <div class="panel-body">
+                        <!-- pie chart canvas element -->
+                       <canvas id="countries" height="400" width="525"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <b>Bar Chart</b>
+                        <span class="close" aria-label="Minimize" onclick="$(this).closest('.panel').children('.panel-body').fadeToggle()">&times;</span>
+                    </div>
+                    <div class="panel-body">
+                        <!-- bar chart canvas element -->
+                        <canvas id="income" height="400" width="525"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <b>Polar Area Chart</b>
+                        <span class="close" aria-label="Minimize" onclick="$(this).closest('.panel').children('.panel-body').fadeToggle()">&times;</span>
+                    </div>
+                    <div class="panel-body">
+                        <!-- line chart canvas element -->
+                        <canvas id="none" height="400" width="525"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <script>
             // line chart data
             var data1;
             $.ajax({
-                url: '/test',
+                url: '/testData',
                 complete: function(data) {
-                data1 = data;
+                data1 = data["responseJSON"];
+                var buyerData = {
+                    labels : ["January","February","March","April","May","June"],
+                    datasets : [
+                    {
+                        fillColor : "rgba(172,194,132,0.4)",
+                        strokeColor : "#ACC26D",
+                        pointColor : "#fff",
+                        pointStrokeColor : "#9DB86D",
+                        data : data1
+                    }
+                    ]
+                }
+                // get line chart canvas
+                var buyers = document.getElementById('buyers').getContext('2d');
+                // draw line chart
+                new Chart(buyers).Line(buyerData,{
+                    responsive : true
+                });
                 }
             });
-            var buyerData = {
-                labels : ["January","February","March","April","May","June"],
-                datasets : [
-                {
-                    fillColor : "rgba(172,194,132,0.4)",
-                    strokeColor : "#ACC26D",
-                    pointColor : "#fff",
-                    pointStrokeColor : "#9DB86D",
-                    data : data1
-                }
-            ]
-            }
-            // get line chart canvas
-            var buyers = document.getElementById('buyers').getContext('2d');
-            // draw line chart
-            new Chart(buyers).Line(buyerData);
+
             // pie chart data
             var pieData = [
                 {
@@ -86,5 +173,6 @@
             // draw bar chart
             new Chart(income).Bar(barData);
         </script>
+        </div>
     </body>
 </html>
