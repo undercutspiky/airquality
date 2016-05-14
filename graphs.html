@@ -16,6 +16,7 @@
         }
         .panel{
             border: 0.5px solid rgba(0,0,0,0.3);
+            overflow: hidden;
         }
         .panel-body{
             border-color: black;
@@ -52,7 +53,7 @@
                     </div>
                     <div class="panel-body">
                         <!-- line chart canvas element -->
-                        <canvas id="buyers" height="400" width="525"></canvas>
+                        <canvas id="buyers" height="400" width="525" style="width:100%;height:auto;"></canvas>
                     </div>
                 </div>
             </div>
@@ -119,7 +120,7 @@
                 var buyers = document.getElementById('buyers').getContext('2d');
                 // draw line chart
                 new Chart(buyers).Line(buyerData,{
-                    responsive : true
+                    responsive : false
                 });
                 }
             });
@@ -172,6 +173,19 @@
             var income = document.getElementById("income").getContext("2d");
             // draw bar chart
             new Chart(income).Bar(barData);
+        </script>
+        <script>
+            (function($){
+                windowResize();
+                $(window).resize(function(){
+                    windowResize();                      
+                });         
+            })(jQuery);
+
+            function windowResize(){
+                $("canvas").css( "width", "100%" );
+                $("canvas").css( "height", "auto" );
+            }
         </script>
         </div>
     </body>
