@@ -116,6 +116,11 @@ var SampleApp = function() {
             res.sendfile('chart.min.js', {root: __dirname })
         };
 
+        self.routes['/test'] = function(req, res) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send("WORKING !!");
+        };
+
     };
 
 
