@@ -112,8 +112,8 @@ var SampleApp = function() {
             res.sendfile('graphs.html', {root: __dirname })
         };
 
-        self.routes['/chart.min.js'] = function(req, res) {
-            res.sendfile('chart.min.js', {root: __dirname })
+        self.routes['/chart.min2.js'] = function(req, res) {
+            res.sendfile('chart.min2.js', {root: __dirname })
         };
 
         self.routes['/test'] = function(req, res) {

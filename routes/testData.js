@@ -22,19 +22,18 @@ router.get('/testData',function(req,res){
 	});
 });
 
-router.get('/graphs/testData',function(req,res){
-	var response = [];
-	Sensor.find().where('timeStamp').gt(monthAgo).exec(function(err, values) {
-		if (err) throw err;
+router.get('/sortedData',function(req,res){
+	var res_date = [];
+	var res_value = [];
+	Sensor.find({}).sort('timeStamp').exec(function(err, docs) {
+		if(err) throw err;
 
-		// show the admins in the past month
-		//console.log(values);
-		for(var i in values){
-			console.log(values[i].value);
-			response.push(values[i].value);
+		for(var i in docs)
+		{
+			res_date.push(docs[i].timeStamp.getTime());
+			res_value.push(docs[i].value);
 		}
-		console.log(response);
-		res.send(response);
+		res.send([res_date, res_value]);
 	});
 });
 
