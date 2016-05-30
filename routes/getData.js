@@ -54,13 +54,14 @@ router.get('/api/acceptData', function(req, res) {
     			throw err;
     		console.log('Value saved = '+value+' with loc = '+location);
     	});
+        // Send response
+        res.send('Value received is '+value+' from '+location);
         // publish the update
         var currDate = new Date(Date.now());
         currDate = new Date(currDate.setHours(currDate.getUTCHours()+2));
         global_val = value;
         global_timeStamp = currDate.getTime();
-    	// Send response
-    	res.send('Value received is '+value+' from '+location);
+    	
     }
     else
     	res.send("Invalid password !");
