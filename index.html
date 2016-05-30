@@ -4,6 +4,30 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
         <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src='./chart.min2.js'></script>
+        <script src="//www.chartjs.org/assets/Chart.min.js"></script>
+        <style>
+        .panel-heading{
+            background-color: black;
+            border-color: black;
+            color: white;
+        }
+        .panel{
+            border: 0.5px solid rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .panel-body{
+            border-color: black;
+        }
+        .close{
+            color: white;
+            opacity: 0.8;
+        }
+        .close:hover{
+            color: white;
+            opacity: 1;
+        }
+        </style>
     </head>
     <body style="background: #f6f8f8">
         <div class="container">
@@ -17,6 +41,78 @@
                     <li><a href="index.html"><span class="glyphicon glyphicon-picture"></span> Images</a></li>
                 </ul>
             </nav>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <b>Live Graph</b>
+                            <span class="close" aria-label="Minimize" onclick="$(this).closest('.panel').children('.panel-body').fadeToggle()">&times;</span>
+                        </div>
+                        <div class="panel-body">
+                            <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;" size="40">
+                            <canvas id="line-canvas" style="width:100%;height:auto;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+        <script>
+            (function($){
+                windowResize();
+                $(window).resize(function(){
+                    windowResize();                      
+                });         
+            })(jQuery);
+
+            function windowResize(){
+                $("canvas").css( "width", "100%" );
+                $("canvas").css( "height", "auto" );
+            }
+        </script>
+
+        <script>
+        var lineChart, lineData, line_canvas, res_date, res_value;
+        $.ajax({
+            url: '/sortedData',
+            complete: function(data) {
+                res_date = data["responseJSON"][0];
+                res_value = data["responseJSON"][1];
+                res_date = res_date.slice(res_date.length-10, res_date.length);
+                res_value = res_value.slice(res_value.length-10, res_value.length);
+
+                for(i=0; i < res_date.length; i++){ 
+                    res_date[i] = new Date(res_date[i]).toLocaleTimeString();
+                }
+
+                lineData = {
+                    labels : res_date,
+                    datasets : [
+                    {
+                        fillColor : "rgba(172,194,132,0.4)",
+                        strokeColor : "#ACC26D",
+                        pointColor : "#fff",
+                        pointStrokeColor : "#9DB86D",
+                        data : res_value
+                    }
+                    ]
+                }
+                line_canvas = document.getElementById('line-canvas').getContext('2d');
+                lineChart = new Chart(line_canvas).Line(lineData);
+            }
+        });
+        </script>
+        <script>
+            var source = new EventSource('/api/acceptData/events');
+            source.onmessage = function(e) {
+                var data = JSON.parse(e.data);
+                var date = new Date(data.timeStamp).toLocaleTimeString();
+                var value = parseInt(data.value);
+                lineChart.addData([value], date);
+                //lineData.datasets[0].data = lineData.datasets[0].data.slice(1, lineData.datasets[0].data.length);
+                //lineData.datasets[0].data.push(parseInt(data.value));
+                lineChart.removeData();
+                lineChart.update();
+            };
+        </script>
     </body>
 </html>

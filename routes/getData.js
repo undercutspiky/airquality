@@ -2,6 +2,8 @@ var express = require('express');
 var router = express();
 var Sensor = require('../database/sensor'); // Sensor schema with database connection
 
+var global_val=0, global_timeStamp=0;
+
 var bodyParser = require('body-parser');
 router.use(bodyParser.json()); // support json encoded bodies
 router.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
@@ -52,11 +54,38 @@ router.get('/api/acceptData', function(req, res) {
     			throw err;
     		console.log('Value saved = '+value+' with loc = '+location);
     	});
+        // publish the update
+        var currDate = new Date(Date.now());
+        currDate = new Date(currDate.setHours(currDate.getUTCHours()+2));
+        global_val = value;
+        global_timeStamp = currDate.getTime();
     	// Send response
     	res.send('Value received is '+value+' from '+location);
     }
     else
     	res.send("Invalid password !");
+});
+
+router.get('/api/acceptData/events', function(req, res){
+    
+    res.writeHead(200, {
+      'Connection': 'keep-alive',
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache'
+    });
+
+
+    setInterval(function() {
+        if (global_val!=0 && global_timeStamp!=0){
+            res.write("data: " + JSON.stringify({value: global_val, timeStamp: global_timeStamp}) + '\n\n');
+            global_val = 0;
+            global_timeStamp = 0;
+        }
+     }, 1000);
+    
+
+    console.log("SSE response sent");
+
 });
 
 module.exports = router;
