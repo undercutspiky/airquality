@@ -1,0 +1,57 @@
+<html>
+<head>
+<link rel="manifest" href="/manifest.json">
+</head>
+<body>
+<div id ="doIt">Click Me</div>
+</body>
+<script>
+var endpoint;
+
+ 
+navigator.serviceWorker.register('service-worker.js')
+.then(function(registration) {
+
+ 
+  return registration.pushManager.getSubscription()
+  .then(function(subscription) {
+
+ 
+    if (subscription) {
+      return subscription;
+    }
+ 
+    return registration.pushManager.subscribe({ userVisibleOnly: true });
+  });
+}).then(function(subscription) {
+  endpoint = subscription.endpoint;
+
+  setInterval(function(){
+    fetch('/register?endpoint=' + endpoint, {
+        method: 'post',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          endpoint: subscription.endpoint,
+        }),
+      })
+  }, 10000);
+});
+
+  
+
+document.getElementById('doIt').onclick = function() {
+  var delay = 2;
+  var ttl = 5;
+
+ 
+  fetch('/sendNotification?endpoint=' + endpoint + '&delay=' + delay +
+        '&ttl=' + ttl,
+    {
+      method: 'post',
+    }
+  );
+};
+</script>
+</html>

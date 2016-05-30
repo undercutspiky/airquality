@@ -6,6 +6,7 @@ var router = express();
 var monthAgo = new Date(Date.now());
 monthAgo.setMonth(monthAgo.getMonth() - 1);
 
+
 router.get('/testData',function(req,res){
 	var response = [];
 	Sensor.find().where('timeStamp').gt(monthAgo).exec(function(err, values) {
@@ -36,5 +37,6 @@ router.get('/sortedData',function(req,res){
 		res.send([res_date, res_value]);
 	});
 });
+
 
 module.exports = router;

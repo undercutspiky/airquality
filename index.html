@@ -6,6 +6,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src='./chart.min2.js'></script>
         <script src="//www.chartjs.org/assets/Chart.min.js"></script>
+        <!-- PUSH NOTIFICATIONS -->
+        <link rel="manifest" href="/manifest.json">
+        <script src="./push_notification.js"></script>
         <style>
         .panel-heading{
             background-color: black;
@@ -114,5 +117,53 @@
                 lineChart.update();
             };
         </script>
+        <!--
+        <script>
+            var endpoint;
+
+             
+            navigator.serviceWorker.register('service-worker.js')
+            .then(function(registration) {
+
+             
+              return registration.pushManager.getSubscription()
+              .then(function(subscription) {
+
+             
+                if (subscription) {
+                  return subscription;
+                }
+             
+                return registration.pushManager.subscribe({ userVisibleOnly: true });
+              });
+            }).then(function(subscription) {
+              endpoint = subscription.endpoint;
+
+             
+              fetch('/register?endpoint=' + endpoint, {
+                method: 'post',
+                headers: {
+                  'Content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                  endpoint: subscription.endpoint,
+                }),
+              });
+            });
+
+            document.getElementById('doIt').onclick = function() {
+              var delay = 2;
+              var ttl = 5;
+
+             
+              fetch('/sendNotification?endpoint=' + endpoint + '&delay=' + delay +
+                    '&ttl=' + ttl,
+                {
+                  method: 'post',
+                }
+              );
+            };
+        </script>
+        -->
     </body>
 </html>

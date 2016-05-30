@@ -11,6 +11,10 @@
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
         <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
+        <!-- PUSH NOTIFICATIONS -->
+        <link rel="manifest" href="/manifest.json">
+        <script src="./push_notification.js"></script>
+
         <style>
         .panel-heading{
             background-color: black;
@@ -110,35 +114,6 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="panel">
-                    <div class="panel-heading">
-                        <b>Bar Chart</b>
-                        <span class="close" aria-label="Minimize" onclick="$(this).closest('.panel').children('.panel-body').fadeToggle()">&times;</span>
-                    </div>
-                    <div class="panel-body">
-                        <label for="bar-input">Price range:</label>
-                        <input type="text" id="bar-input" readonly style="border:0; color:#f6931f; font-weight:bold;" size="40">
-                        <div id="bar-range"></div>
-                        <!-- bar chart canvas element -->
-                        <canvas id="bar-canvas" height="400" width="525"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="panel">
-                    <div class="panel-heading">
-                        <b>Polar Area Chart</b>
-                        <span class="close" aria-label="Minimize" onclick="$(this).closest('.panel').children('.panel-body').fadeToggle()">&times;</span>
-                    </div>
-                    <div class="panel-body">
-                        <!-- line chart canvas element -->
-                        <canvas id="none" height="400" width="525"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
         
         <script>
             // line chart data
@@ -153,14 +128,14 @@
                     res_date[i] = new Date(res_date[i]).toLocaleTimeString();
                 }
                 var buyerData = {
-                    labels : res_date,
+                    labels : res_date.slice(res_date.length-50, res_date.length),
                     datasets : [
                     {
                         fillColor : "rgba(172,194,132,0.4)",
                         strokeColor : "#ACC26D",
                         pointColor : "#fff",
                         pointStrokeColor : "#9DB86D",
-                        data : res_value
+                        data : res_value.slice(res_value.length-50, res_value.length)
                     }
                     ]
                 }
@@ -206,27 +181,7 @@
             var pie_canvas= document.getElementById("pie-canvas").getContext("2d");
             // draw pie chart
             var pieChart = new Chart(pie_canvas).Pie(pieData, pieOptions);
-            // bar chart data
-            var barData = {
-                labels : ["January","February","March","April","May","June"],
-                datasets : [
-                    {
-                        fillColor : "#48A497",
-                        strokeColor : "#48A4D1",
-                        data : [456,479,324,569,702,600]
-                    },
-                    {
-                        fillColor : "rgba(73,188,170,0.4)",
-                        strokeColor : "rgba(72,174,209,0.4)",
-                        data : [364,504,605,400,345,320]
-                    }
-                ]
-            }
-
-            // get bar chart canvas
-            var bar_canvas = document.getElementById("bar-canvas").getContext("2d");
-            // draw bar chart
-            var barChart = new Chart(bar_canvas).Bar(barData);
+            
         </script>
         <script>
             (function($){
@@ -253,7 +208,7 @@
                         range: true,
                         min: res_date[0],
                         max: res_date[res_date.length-1],
-                        values: [res_date[0], res_date[res_date.length-1]],
+                        values: [res_date[res_date.length-50], res_date[res_date.length-1]],
                         slide: function( event, ui ) {
                             $( "#amount" ).val( new Date(ui.values[0]).toLocaleString() + " - " + new Date(ui.values[1]).toLocaleString() );
                             labels = res_date.slice(res_date.binaryIndexOf(ui.values[0]), res_date.binaryIndexOf(ui.values[1])+1);
@@ -290,34 +245,14 @@
                         slide: function( event, ui ) {
                             $( "#quartile-input" ).val( new Date(ui.values[0]).toLocaleString() + " - " + new Date(ui.values[1]).toLocaleString() );
                             var sorted_values = res_value.slice(res_date.binaryIndexOf(ui.values[0]), res_date.binaryIndexOf(ui.values[1])+1);
-                            sorted_values.sort(function(a,b){return a - b});
-                            var counts = [];
-                            var indices = [];
+                            var counts = [0,0,0,0,0,0];
                             var ranges = [0,450,700,1000,2500,5000,60000];
-                            for(i=0, j=1; i<sorted_values.length; i++){
-                                console.log(sorted_values[i]);
-                                console.log(ranges[j]);
-                                if(sorted_values[i] > ranges[j]){
-                                    if(j==1){
-                                        counts.push(i);
-                                        indices.push(i);
-                                        j++;
-                                        while(sorted_values[i] > ranges[j]){
-                                            counts.push(0);
-                                            j++;
-                                            indices.push(i);
-                                        }
-                                        continue;
-                                    }
-                                    counts.push(i-indices[j-2]);
-                                    j++;
-                                    while(sorted_values[i]>ranges[j]){
-                                        counts.push(0);
-                                        indices.push(i)
-                                        j++;
-                                    }
-                                    if(i==sorted_values.length-1){
-                                        counts.push(i-indices[indices.length-1]+1);
+                            
+                            for(j=0; j<sorted_values.length; j++){
+                                for(i=1; i<ranges.length; i++){
+                                    if(sorted_values[j]>ranges[i-1] && sorted_values[j]<=ranges[i]){
+                                        counts[i-1]++;
+                                        break;
                                     }
                                 }
                             }
@@ -333,28 +268,6 @@
                                     label: ranges[i].toString() + " - " + ranges[i+1].toString()
                                 })
                             }
-                            /*
-                            var pieData = [
-                                {
-                                    value : sorted_values[Math.ceil(sorted_values.length/4)],
-                                    color : "#4ACAB4",
-                                    highlight: "#29A993",
-                                    label: "1st Quartile"
-                                },
-                                {
-                                    value : sorted_values[Math.ceil(sorted_values.length/2)],
-                                    color : "#FF8153",
-                                    highlight: "#DE6032",
-                                    label: "Median"
-                                },
-                                {
-                                    value : sorted_values[Math.ceil(3*sorted_values.length/4)],
-                                    color : "#FFEA88",
-                                    highlight: "#EEC967",
-                                    label: "3rd Quartile"
-                                }
-                            ];
-                            */
                             // pie chart options
                             var pieOptions = {
                                 tooltipTemplate: "<%= label %> : <%= value %>",
@@ -374,62 +287,7 @@
                     $( "#quartile-input" ).val( new Date($( "#quartile-range" ).slider( "values", 0 )).toLocaleString() +
                         " - " + new Date($( "#quartile-range" ).slider( "values", 1 ) ).toLocaleString());
 
-                    // SLIDER FOR BAR CHART
-                    $( "#bar-range" ).slider({
-                        range: true,
-                        min: res_date[0],
-                        max: res_date[res_date.length-1],
-                        values: [res_date[0], res_date[res_date.length-1]],
-                        slide: function( event, ui ) {
-                            $( "#bar-input" ).val( new Date(ui.values[0]).toLocaleString() + " - " + new Date(ui.values[1]).toLocaleString() );
-                            var sliced_values = res_value.slice(res_date.binaryIndexOf(ui.values[0]), res_date.binaryIndexOf(ui.values[1])+1);
-                            ranges = [50,100,200]
-                            var data_arr = []
-                            var i=0,j=0;
-                            for(i; i<sliced_values.length; i++){
-                                if(sliced_values[i]>ranges[j]){
-                                    j++;
-                                    data_arr.push(i);
-                                }
-                            }
-                            var pieData = [
-                                {
-                                    value : sorted_values[Math.ceil(sorted_values.length/4)],
-                                    color : "#4ACAB4",
-                                    highlight: "#29A993",
-                                    label: "1st Quartile"
-                                },
-                                {
-                                    value : sorted_values[Math.ceil(sorted_values.length/2)],
-                                    color : "#FF8153",
-                                    highlight: "#DE6032",
-                                    label: "Median"
-                                },
-                                {
-                                    value : sorted_values[Math.ceil(3*sorted_values.length/4)],
-                                    color : "#FFEA88",
-                                    highlight: "#EEC967",
-                                    label: "3rd Quartile"
-                                }
-                            ];
-                            // bar chart options
-                            var pieOptions = {
-                                tooltipTemplate: "<%= label %> : <%= value %>",
-                                segmentShowStroke : true,
-                                animateScale : true,
-                                showTooltips: true,
-                                animationSteps: 30
-                        
-                            }
-                            $('#bar-canvas').remove();
-                            $('.panel-body').eq(1).append('<canvas id="bar-canvas" height="400" width="525" style="width:100%;height:auto;"></canvas>');
-                            var bar_canvas = document.getElementById('bar-canvas').getContext('2d');
-                            pieChart = new Chart(bar_canvas).Pie(barData, barOptions);
-
-                        }
-                    });
-                    $( "#quartile-input" ).val( new Date($( "#quartile-range" ).slider( "values", 0 )).toLocaleString() +
-                        " - " + new Date($( "#quartile-range" ).slider( "values", 1 ) ).toLocaleString());
+                    
                 }
             });
         </script>

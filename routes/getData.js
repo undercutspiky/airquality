@@ -3,6 +3,7 @@ var router = express();
 var Sensor = require('../database/sensor'); // Sensor schema with database connection
 
 var global_val=0, global_timeStamp=0;
+var global_val2=0;
 
 var bodyParser = require('body-parser');
 router.use(bodyParser.json()); // support json encoded bodies
@@ -61,7 +62,7 @@ router.get('/api/acceptData', function(req, res) {
         currDate = new Date(currDate.setHours(currDate.getUTCHours()+2));
         global_val = value;
         global_timeStamp = currDate.getTime();
-    	
+        global_val2 = value;
     }
     else
     	res.send("Invalid password !");
@@ -88,5 +89,27 @@ router.get('/api/acceptData/events', function(req, res){
     console.log("SSE response sent");
 
 });
+
+// push notifications 
+var webPush = require('web-push');
+webPush.setGCMAPIKey("AIzaSyAWLySN_UaBw8gyhM4jIzwPutxG0NMqql4");
+
+router.post('/register', function(req, res) {
+    if(global_val2 !=0 && global_val2 > 1000){
+        setTimeout(function() {
+          webPush.sendNotification(req.query.endpoint, {
+            TTL: 10,
+            payload: 'High CO2 levels - ' + global_val2.toString() + ' ppm detected',
+            userPublicKey: req.body.key,
+            userAuth: req.body.authSecret,
+          })
+          .then(function() {
+            res.sendStatus(201);
+          });
+        }, req.query.delay * 1000);
+        global_val2 = 0;
+    }
+    
+  });
 
 module.exports = router;

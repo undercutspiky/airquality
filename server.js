@@ -116,6 +116,26 @@ var SampleApp = function() {
             res.sendfile('chart.min2.js', {root: __dirname })
         };
 
+        self.routes['/service-worker.js'] = function(req, res) {
+            res.sendfile('service-worker.js', {root: __dirname })
+        };
+
+        self.routes['/manifest.json'] = function(req, res) {
+            res.sendfile('manifest.json', {root: __dirname })
+        };
+
+        self.routes['/icon.png'] = function(req, res) {
+            res.sendfile('icon.png', {root: __dirname })
+        };
+
+        self.routes['/push_notification.js'] = function(req, res) {
+            res.sendfile('push_notification.js', {root: __dirname })
+        };
+
+        self.routes['/push'] = function(req, res) {
+            res.sendfile('push.html', {root: __dirname })
+        };
+
         self.routes['/test'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
             res.send("WORKING !!");
